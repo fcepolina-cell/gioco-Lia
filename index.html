@@ -104,12 +104,14 @@
   </div>
 
   <div class="question-container" id="question-area">
-    <div id="question-text">Premi "Inizia" per cominciare.</div>
-    <div class="btn-group">
-      <button class="btn" onclick="startGame()">Inizia</button>
-    </div>
+  <div id="start-screen">
+    <h2>SCANSIONA IL QR CODE</h2>
+    <p>Usa la fotocamera del tuo smartphone per giocare.</p>
+    <div id="qrcode" style="margin: 20px auto; width: 200px; height: 200px;"></div>
+    <button class="btn" onclick="startGame()">Inizia sul computer</button>
   </div>
-
+</div>
+  
   <div class="result" id="result-area">
     <div class="animal-icon" id="animal">?</div>
     <h2 id="profile-name">—</h2>
@@ -331,5 +333,23 @@
       startGame();
     }
   </script>
+
+  <!-- Libreria QR Code leggera -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  // Genera il QR code all'avvio
+  window.onload = function() {
+    const url = "https://fcepolina-cell.github.io/gioco-Lia/";
+    new QRCode(document.getElementById("qrcode"), {
+      text: url,
+      width: 200,
+      height: 200,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.L
+    });
+  };
+</script>
+
 </body>
 </html>

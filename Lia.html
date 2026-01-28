@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Il Tuo Profilo Finanziario</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f9f9fb;
+      color: #333;
+      line-height: 1.5;
+    }
+    h1 { text-align: center; color: #2c3e50; margin: 10px 0 20px; }
+    .hud {
+      display: flex;
+      justify-content: space-around;
+      background: white;
+      padding: 12px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      margin-bottom: 25px;
+    }
+    .stat {
+      text-align: center;
+      font-weight: 600;
+    }
+    .stat-icon { font-size: 1.8em; margin-bottom: 4px; }
+    .question-container {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 12px 24px;
+      font-size: 1.1em;
+      cursor: pointer;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      transition: background 0.2s;
+      min-width: 90px;
+    }
+    .btn:hover { background: #2980b9; }
+    .btn-back {
+      background: #95a5a6;
+      width: 100%;
+      max-width: 200px;
+      margin-top: 15px;
+    }
+    .btn-back:hover { background: #7f8c8d; }
+    .result {
+      display: none;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .animal-icon { font-size: 3.5em; margin: 15px 0; }
+    .moral-line {
+      margin: 12px 0;
+      font-size: 1.05em;
+    }
+    .moral-practical { color: #27ae60; }
+    .moral-amoral { color: #e74c3c; }
+    .moral-zen { color: #8e44ad; font-style: italic; }
+    .mission-icon { font-size: 2em; vertical-align: middle; margin-right: 8px; }
+  </style>
+</head>
+<body>
+
+  <h1>IL TUO PROFILO FINANZIARIO</h1>
+
+  <div class="hud">
+    <div class="stat">
+      <div class="stat-icon">✨</div>
+      <div>AURA</div>
+      <div id="aura">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">📚</div>
+      <div>SKILL</div>
+      <div id="skill">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">💰</div>
+      <div>DENARO</div>
+      <div id="denaro">0</div>
+    </div>
+  </div>
+
+  <div class="question-container" id="question-area">
+    <div id="question-text">Premi "Inizia" per cominciare.</div>
+    <div class="btn-group">
+      <button class="btn" onclick="startGame()">Inizia</button>
+    </div>
+  </div>
+
+  <div class="result" id="result-area">
+    <div class="animal-icon" id="animal">?</div>
+    <h2 id="profile-name">—</h2>
+    <p><strong>Aura:</strong> <span id="final-aura">0</span> | 
+       <strong>Skill:</strong> <span id="final-skill">0</span> | 
+       <strong>Denaro:</strong> <span id="final-denaro">0</span></p>
+
+    <div class="moral-line moral-practical">• <span id="moral-1"></span></div>
+    <div class="moral-line moral-amoral">• <span id="moral-2"></span></div>
+    <div class="moral-line moral-zen">• <span id="moral-3"></span></div>
+
+    <button class="btn" style="margin-top: 25px;" onclick="restartGame()">Ricomincia</button>
+  </div>
+
+  <script>
+    // --- MISSIONI CON TUTTI E 9 I VALORI (A, B, C) ---
+    const missions = [
+      { name: "mercato", icon: "🛒", effects: [-2, 0, -5,  -2, 0, -2,  2, 0, 2] },
+      { name: "moneta", icon: "🪙", effects: [0, 5, 5,  0, 0, -5,  -10, 0, 10] },
+      { name: "viaggio", icon: "✈️", effects: [0, 2, -10,  5, 0, -2,  0, -5, 0] },
+      { name: "trasporto", icon: "🚗", effects: [0, -5, 0,  0, 8, 2,  0, 0, -5] },
+      { name: "contabilita", icon: "📊", effects: [0, 0, -5,  0, 10, 0,  -10, 0, 0] },
+      { name: "inflazione", icon: "📈", effects: [0, 0, -5,  0, 8, 5,  -2, 0, 0] },
+      { name: "risparmio", icon: "💰", effects: [0, 0, -2,  5, 3, 0,  0, 0, -10] },
+      { name: "acquisto", icon: "🛍️", effects: [0, 0, -10,  0, 5, 2,  10, 0, -10] },
+      { name: "rischio", icon: "⚠️", effects: [0, 0, -10,  0, 8, 5,  0, 0, -2] },
+      { name: "denaro", icon: "💵", effects: [0, 0, -10,  0, 5, 0,  0, -10, -10] },
+      { name: "trappola", icon: "🕳️", effects: [0, 0, -10,  0, 10, 5,  -5, 0, 0] },
+      { name: "crypto", icon: "💎", effects: [0, 0, -8,  0, 8, 0,  0, -2, 0] },
+      { name: "imprevisto", icon: "🌀", effects: [0, 0, -5,  5, 10, 0,  0, 0, -5] }
+    ];
+
+    const profiles = [
+      { cond: (a,s,d) => a >= 15 && s < 10 && d < 10, animal: "🕊️", name: "L’IDEALISTA",
+        moral: ["Aiuta gli altri, ma non svuotare il tuo portafoglio.","Chi ti sfrutta sa che sei buono. Impara a dire no.","La pace interiore nasce quando agisci in coerenza."]
+      },
+      { cond: (a,s,d) => s >= 15 && a < 10 && d < 10, animal: "🦉", name: "IL BANCHIERE",
+        moral: ["Studia sempre: la conoscenza è il tuo vero capitale.","Nessuno ti pagherà per quello che sai, ma per come lo usi.","Silenzio la mente, ascolta i numeri, trova la verità."]
+      },
+      { cond: (a,s,d) => d >= 15 && a < 10 && s < 10, animal: "🐷", name: "IL RISPARMIATORE",
+        moral: ["Risparmiare è saggio, ma vivere è meglio.","I soldi non fanno la felicità, ma comprano libertà.","Non accumulare cose, accumula scelte."]
+      },
+      { cond: (a,s,d) => a >= 10 && s >= 10 && d >= 10, animal: "🐘", name: "IL CITTADINO CONSAPEVOLE",
+        moral: ["Equilibrio: dona, impara, investi. In quest’ordine.","Il mondo premia chi capisce le regole, non chi le subisce.","Cammina con tre gambe: cuore, mente, portafoglio."]
+      },
+      { cond: (a,s,d) => a > s && a > d, animal: "🦋", name: "L’ETICO",
+        moral: ["Sii gentile, ma non ingenuo. L’etica ha un prezzo.","Molti fingono di voler giustizia, ma cercano vantaggio.","Volare alto richiede ali leggere: lascia andare il rancore."]
+      },
+      { cond: (a,s,d) => s > a && s > d, animal: "🧠", name: "L’INTELLIGENTE",
+        moral: ["Leggi ogni giorno, anche se nessuno te lo chiede.","La realtà non è logica, ma puoi anticiparla.","Pensa come un fiume: scorri, non combattere."]
+      },
+      { cond: (a,s,d) => d > a && d > s, animal: "💰", name: "IL PRATICANTE",
+        moral: ["Guadagna onestamente, ma non fidarti mai ciecamente.","Chi ha soldi decide. Assicurati di averne abbastanza.","Il denaro è energia: non trattenerla, fatela circolare."]
+      },
+      { cond: (a,s,d) => a < 5 && s < 5 && d < 5, animal: "🐢", name: "IL CAUTELATO",
+        moral: ["Muoviti lentamente, ma muoviti. Fermarsi è pericoloso.","Il mondo non aspetta chi ha paura di scegliere.","Anche la tartaruga attraversa l’oceano, passo dopo passo."]
+      },
+      { cond: (a,s,d) => a < 5 && s > 10 && d > 10, animal: "🐍", name: "IL CALCOLATORE",
+        moral: ["Usa la testa, ma non dimenticare il cuore.","Chi calcola tutto, perde l’imprevisto: e l’imprevisto è la vita.","Essere freddi ti fa vincere oggi, ma non ti fa dormire sereno."]
+      },
+      { cond: (a,s,d) => a > 10 && s < 5 && d > 10, animal: "⚖️", name: "L’EQUILIBRISTA",
+        moral: ["Cerca l’equilibrio tra valori e interessi.","A volte devi piegarti per non spezzarti.","Stai in bilico, ma guarda sempre l’orizzonte."]
+      }
+    ];
+
+    let indices = [0, 0, 0];
+    let currentMissionIndex = 0;
+    let history = [];
+
+    function updateHUD() {
+      document.getElementById('aura').textContent = indices[0];
+      document.getElementById('skill').textContent = indices[1];
+      document.getElementById('denaro').textContent = indices[2];
+    }
+
+    function startGame() {
+      indices = [0, 0, 0];
+      currentMissionIndex = 0;
+      history = [];
+      updateHUD();
+      showMission();
+    }
+
+    function showMission() {
+      if (currentMissionIndex >= missions.length) {
+        showResult();
+        return;
+      }
+
+      const m = missions[currentMissionIndex];
+      const container = document.getElementById('question-area');
+      container.innerHTML = `
+        <div style="font-size: 1.4em; margin-bottom: 20px;">
+          <span class="mission-icon">${m.icon}</span>${m.name.toUpperCase()}
+        </div>
+        <div class="btn-group">
+          <button class="btn" onclick="chooseOption(0)">A</button>
+          <button class="btn" onclick="chooseOption(1)">B</button>
+          <button class="btn" onclick="chooseOption(2)">C</button>
+        </div>
+        ${currentMissionIndex > 0 ? '<button class="btn btn-back" onclick="goBack()">← Indietro</button>' : ''}
+      `;
+    }
+
+    function chooseOption(opt) {
+      const m = missions[currentMissionIndex];
+      const start = opt * 3;
+      const delta = [
+        m.effects[start],
+        m.effects[start + 1],
+        m.effects[start + 2]
+      ];
+
+      history.push([...indices]);
+      indices[0] += delta[0];
+      indices[1] += delta[1];
+      indices[2] += delta[2];
+
+      currentMissionIndex++;
+      updateHUD();
+      showMission();
+    }
+
+    function goBack() {
+      if (history.length === 0) return;
+      indices = history.pop();
+      currentMissionIndex--;
+      updateHUD();
+      showMission();
+    }
+
+    function showResult() {
+      document.getElementById('question-area').style.display = 'none';
+      const resultArea = document.getElementById('result-area');
+      resultArea.style.display = 'block';
+
+      const [a, s, d] = indices;
+      const prof = profiles.find(p => p.cond(a, s, d)) || {
+        animal: "❓", name: "PROFILO UNICO",
+        moral: ["Hai creato un percorso mai visto.","Forse stai ridefinendo le regole.","Continua a camminare: la tua strada è tua."]
+      };
+
+      document.getElementById('animal').textContent = prof.animal;
+      document.getElementById('profile-name').textContent = prof.name;
+      document.getElementById('final-aura').textContent = a;
+      document.getElementById('final-skill').textContent = s;
+      document.getElementById('final-denaro').textContent = d;
+
+      document.getElementById('moral-1').textContent = prof.moral[0];
+      document.getElementById('moral-2').textContent = prof.moral[1];
+      document.getElementById('moral-3').textContent = prof.moral[2];
+    }
+
+    function restartGame() {
+      document.getElementById('result-area').style.display = 'none';
+      document.getElementById('question-area').style.display = 'block';
+      startGame();
+    }
+  </script>
+</body>
+</html>

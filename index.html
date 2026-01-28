@@ -72,13 +72,33 @@
     }
     .animal-icon { font-size: 3.5em; margin: 15px 0; }
     .moral-line {
-      margin: 12px 0;
-      font-size: 1.05em;
+      margin: 16px 0;
+      font-size: 1.4em;
+      line-height: 1.4;
+      font-weight: 500;
     }
     .moral-practical { color: #27ae60; }
     .moral-amoral { color: #e74c3c; }
     .moral-zen { color: #8e44ad; font-style: italic; }
     .mission-icon { font-size: 2em; vertical-align: middle; margin-right: 8px; }
+    
+    /* Miglioramento per smartphone */
+    @media (max-width: 480px) {
+      .moral-line {
+        font-size: 1.6em;
+        margin: 20px 0;
+      }
+      .animal-icon {
+        font-size: 4em;
+      }
+      h2 {
+        font-size: 1.8em;
+      }
+      .btn {
+        font-size: 1.2em;
+        padding: 14px 20px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -104,14 +124,14 @@
   </div>
 
   <div class="question-container" id="question-area">
-  <div id="start-screen">
-    <h2>SCANSIONA IL QR CODE</h2>
-    <p>Usa la fotocamera del tuo smartphone per giocare.</p>
-    <div id="qrcode" style="margin: 20px auto; width: 200px; height: 200px;"></div>
-    <button class="btn" onclick="startGame()">Inizia sul computer</button>
+    <div id="start-screen">
+      <h2>SCANSIONA IL QR CODE</h2>
+      <p>Usa la fotocamera del tuo smartphone per giocare.</p>
+      <div id="qrcode" style="margin: 20px auto; width: 200px; height: 200px;"></div>
+      <button class="btn" onclick="startGame()">Inizia sul computer</button>
+    </div>
   </div>
-</div>
-  
+
   <div class="result" id="result-area">
     <div class="animal-icon" id="animal">?</div>
     <h2 id="profile-name">—</h2>
@@ -126,8 +146,10 @@
     <button class="btn" style="margin-top: 25px;" onclick="restartGame()">Ricomincia</button>
   </div>
 
+  <!-- Libreria QR Code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
-    // --- MISSIONI CON TUTTI E 9 I VALORI (A, B, C) ---
+    // --- MISSIONI CON 9 VALORI CORRETTI ---
     const missions = [
       { name: "mercato", icon: "🛒", effects: [-2, 0, -5,  -2, 0, -2,  2, 0, 2] },
       { name: "moneta", icon: "🪙", effects: [0, 5, 5,  0, 0, -5,  -10, 0, 10] },
@@ -144,101 +166,40 @@
       { name: "imprevisto", icon: "🌀", effects: [0, 0, -5,  5, 10, 0,  0, 0, -5] }
     ];
 
-    
-    
+    // --- PROFILI RIEQUILIBRATI ---
     const profiles = [
-      { 
-        cond: (a,s,d) => a >= 10 && s <= 8 && d <= 8,
-        animal: "🕊️", name: "L’IDEALISTA",
-        moral: [
-          "Aiuta gli altri, ma non svuotare il tuo portafoglio.",
-          "Chi ti sfrutta sa che sei buono. Impara a dire no.",
-          "La pace interiore nasce quando agisci in coerenza."
-        ]
+      { cond: (a,s,d) => a >= 10 && s <= 8 && d <= 8, animal: "🕊️", name: "L’IDEALISTA",
+        moral: ["Aiuta gli altri, ma non svuotare il tuo portafoglio.","Chi ti sfrutta sa che sei buono. Impara a dire no.","La pace interiore nasce quando agisci in coerenza."]
       },
-      { 
-        cond: (a,s,d) => a <= 8 && s >= 10 && d >= 0,
-        animal: "🦉", name: "IL BANCHIERE",
-        moral: [
-          "Studia sempre: la conoscenza è il tuo vero capitale.",
-          "Nessuno ti pagherà per quello che sai, ma per come lo usi.",
-          "Silenzio la mente, ascolta i numeri, trova la verità."
-        ]
+      { cond: (a,s,d) => a <= 8 && s >= 10 && d >= 0, animal: "🦉", name: "IL BANCHIERE",
+        moral: ["Studia sempre: la conoscenza è il tuo vero capitale.","Nessuno ti pagherà per quello che sai, ma per come lo usi.","Silenzio la mente, ascolta i numeri, trova la verità."]
       },
-      { 
-        cond: (a,s,d) => a <= 8 && s <= 8 && d >= 10,
-        animal: "🐷", name: "IL RISPARMIATORE",
-        moral: [
-          "Risparmiare è saggio, ma vivere è meglio.",
-          "I soldi non fanno la felicità, ma comprano libertà.",
-          "Non accumulare cose, accumula scelte."
-        ]
+      { cond: (a,s,d) => a <= 8 && s <= 8 && d >= 10, animal: "🐷", name: "IL RISPARMIATORE",
+        moral: ["Risparmiare è saggio, ma vivere è meglio.","I soldi non fanno la felicità, ma comprano libertà.","Non accumulare cose, accumula scelte."]
       },
-      { 
-        cond: (a,s,d) => a >= 8 && s >= 8 && d >= 8,
-        animal: "🐘", name: "IL CITTADINO CONSAPEVOLE",
-        moral: [
-          "Equilibrio: dona, impara, investi. In quest’ordine.",
-          "Il mondo premia chi capisce le regole, non chi le subisce.",
-          "Cammina con tre gambe: cuore, mente, portafoglio."
-        ]
+      { cond: (a,s,d) => a >= 8 && s >= 8 && d >= 8, animal: "🐘", name: "IL CITTADINO CONSAPEVOLE",
+        moral: ["Equilibrio: dona, impara, investi. In quest’ordine.","Il mondo premia chi capisce le regole, non chi le subisce.","Cammina con tre gambe: cuore, mente, portafoglio."]
       },
-      { 
-        cond: (a,s,d) => a >= 12 && s <= 10 && d <= 10,
-        animal: "🦋", name: "L’ETICO",
-        moral: [
-          "Sii gentile, ma non ingenuo. L’etica ha un prezzo.",
-          "Molti fingono di voler giustizia, ma cercano vantaggio.",
-          "Volare alto richiede ali leggere: lascia andare il rancore."
-        ]
+      { cond: (a,s,d) => a >= 12 && s <= 10 && d <= 10, animal: "🦋", name: "L’ETICO",
+        moral: ["Sii gentile, ma non ingenuo. L’etica ha un prezzo.","Molti fingono di voler giustizia, ma cercano vantaggio.","Volare alto richiede ali leggere: lascia andare il rancore."]
       },
-      { 
-        cond: (a,s,d) => a <= 10 && s >= 12 && d <= 10,
-        animal: "🧠", name: "L’INTELLIGENTE",
-        moral: [
-          "Leggi ogni giorno, anche se nessuno te lo chiede.",
-          "La realtà non è logica, ma puoi anticiparla.",
-          "Pensa come un fiume: scorri, non combattere."
-        ]
+      { cond: (a,s,d) => a <= 10 && s >= 12 && d <= 10, animal: "🧠", name: "L’INTELLIGENTE",
+        moral: ["Leggi ogni giorno, anche se nessuno te lo chiede.","La realtà non è logica, ma puoi anticiparla.","Pensa come un fiume: scorri, non combattere."]
       },
-      { 
-        cond: (a,s,d) => a <= 10 && s <= 10 && d >= 12,
-        animal: "💰", name: "IL PRATICANTE",
-        moral: [
-          "Guadagna onestamente, ma non fidarti mai ciecamente.",
-          "Chi ha soldi decide. Assicurati di averne abbastanza.",
-          "Il denaro è energia: non trattenerla, fatela circolare."
-        ]
+      { cond: (a,s,d) => a <= 10 && s <= 10 && d >= 12, animal: "💰", name: "IL PRATICANTE",
+        moral: ["Guadagna onestamente, ma non fidarti mai ciecamente.","Chi ha soldi decide. Assicurati di averne abbastanza.","Il denaro è energia: non trattenerla, fatela circolare."]
       },
-      { 
-        cond: (a,s,d) => a <= 5 && s <= 5 && d <= 5,
-        animal: "🐢", name: "IL CAUTELATO",
-        moral: [
-          "Muoviti lentamente, ma muoviti. Fermarsi è pericoloso.",
-          "Il mondo non aspetta chi ha paura di scegliere.",
-          "Anche la tartaruga attraversa l’oceano, passo dopo passo."
-        ]
+      { cond: (a,s,d) => a <= 5 && s <= 5 && d <= 5, animal: "🐢", name: "IL CAUTELATO",
+        moral: ["Muoviti lentamente, ma muoviti. Fermarsi è pericoloso.","Il mondo non aspetta chi ha paura di scegliere.","Anche la tartaruga attraversa l’oceano, passo dopo passo."]
       },
-      { 
-        cond: (a,s,d) => a <= 6 && s >= 11 && d >= 11,
-        animal: "🐍", name: "IL CALCOLATORE",
-        moral: [
-          "Usa la testa, ma non dimenticare il cuore.",
-          "Chi calcola tutto, perde l’imprevisto: e l’imprevisto è la vita.",
-          "Essere freddi ti fa vincere oggi, ma non ti fa dormire sereno."
-        ]
+      { cond: (a,s,d) => a <= 6 && s >= 11 && d >= 11, animal: "🐍", name: "IL CALCOLATORE",
+        moral: ["Usa la testa, ma non dimenticare il cuore.","Chi calcola tutto, perde l’imprevisto: e l’imprevisto è la vita.","Essere freddi ti fa vincere oggi, ma non ti fa dormire sereno."]
       },
-      { 
-        cond: (a,s,d) => a >= 9 && s <= 7 && d >= 9,
-        animal: "⚖️", name: "L’EQUILIBRISTA",
-        moral: [
-          "Cerca l’equilibrio tra valori e interessi.",
-          "A volte devi piegarti per non spezzarti.",
-          "Stai in bilico, ma guarda sempre l’orizzonte."
-        ]
+      { cond: (a,s,d) => a >= 9 && s <= 7 && d >= 9, animal: "⚖️", name: "L’EQUILIBRISTA",
+        moral: ["Cerca l’equilibrio tra valori e interessi.","A volte devi piegarti per non spezzarti.","Stai in bilico, ma guarda sempre l’orizzonte."]
       }
     ];
-    
+
     let indices = [0, 0, 0];
     let currentMissionIndex = 0;
     let history = [];
@@ -329,27 +290,37 @@
 
     function restartGame() {
       document.getElementById('result-area').style.display = 'none';
-      document.getElementById('question-area').style.display = 'block';
-      startGame();
+      document.getElementById('question-area').innerHTML = `
+        <div id="start-screen">
+          <h2>SCANSIONA IL QR CODE</h2>
+          <p>Usa la fotocamera del tuo smartphone per giocare.</p>
+          <div id="qrcode" style="margin: 20px auto; width: 200px; height: 200px;"></div>
+          <button class="btn" onclick="startGame()">Inizia sul computer</button>
+        </div>
+      `;
+      // Rigenera il QR code
+      setTimeout(() => {
+        document.getElementById('qrcode').innerHTML = '';
+        new QRCode(document.getElementById("qrcode"), {
+          text: "https://fcepolina-cell.github.io/gioco-Lia/",
+          width: 200,
+          height: 200,
+          colorDark: "#000",
+          colorLight: "#fff"
+        });
+      }, 100);
     }
+
+    // Genera QR all'avvio
+    window.onload = function() {
+      new QRCode(document.getElementById("qrcode"), {
+        text: "https://fcepolina-cell.github.io/gioco-Lia/",
+        width: 200,
+        height: 200,
+        colorDark: "#000",
+        colorLight: "#fff"
+      });
+    };
   </script>
-
-  <!-- Libreria QR Code leggera -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-  // Genera il QR code all'avvio
-  window.onload = function() {
-    const url = "https://fcepolina-cell.github.io/gioco-Lia/";
-    new QRCode(document.getElementById("qrcode"), {
-      text: url,
-      width: 200,
-      height: 200,
-      colorDark: "#000000",
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.L
-    });
-  };
-</script>
-
 </body>
 </html>
